@@ -1,0 +1,24 @@
+{
+    "name": "viloveul/container",
+    "description": "Container of Viloveul.",
+    "type": "framework",
+    "license": "MIT",
+    "authors": [{
+        "name": "Fajrul Akbar Zuhdi",
+        "email": "fajrulaz@gmail.com"
+    }],
+    "keywords": ["framework", "micro", "zafex", "viloveul", "fajrulaz", "container"],
+    "minimum-stability": "dev",
+    "require": {
+        "psr/container": "^1.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Viloveul\\Container\\": "src/"
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "prefer-stable": true
+}
