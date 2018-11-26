@@ -9,6 +9,10 @@
     }],
     "keywords": ["framework", "micro", "zafex", "viloveul", "fajrulaz", "container"],
     "minimum-stability": "dev",
+    "prefer-stable": true,
+    "config": {
+        "sort-packages": true
+    },
     "require": {
         "psr/container": "^1.0"
     },
@@ -16,9 +20,5 @@
         "psr-4": {
             "Viloveul\\Container\\": "src/"
         }
-    },
-    "config": {
-        "sort-packages": true
-    },
-    "prefer-stable": true
+    }
 }

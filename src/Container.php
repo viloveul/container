@@ -76,25 +76,23 @@ class Container implements IContainer
      */
     public function get($id)
     {
-        if ($this->has($id)) {
-            if (!array_key_exists($id, $this->instances)) {
+        if (!array_key_exists($id, $this->instances)) {
+            if ($this->has($id)) {
                 if (is_callable($this->classes[$id])) {
                     $this->instances[$id] = $this->invoke($this->classes[$id]);
+                } elseif (is_array($this->classes[$id])) {
+                    $params = $this->classes[$id];
+                    $class = $params['class'];
+                    unset($params['class']);
+                    $this->instances[$id] = $this->factory($class, $params);
                 } else {
-                    if (is_array($this->classes[$id])) {
-                        $params = $this->classes[$id];
-                        $class = $params['class'];
-                        unset($params['class']);
-                        $this->instances[$id] = $this->factory($class, $params);
-                    } else {
-                        $this->instances[$id] = $this->factory($this->classes[$id]);
-                    }
+                    $this->instances[$id] = $this->factory($this->classes[$id]);
                 }
+            } else {
+                throw new NotFoundException("{$id} does not found.");
             }
-            return $this->instances[$id];
-        } else {
-            throw new NotFoundException("{$id} does not found.");
         }
+        return $this->instances[$id];
     }
 
     public static function getInstance(): IContainer
@@ -147,17 +145,20 @@ class Container implements IContainer
         if (is_string($param)) {
             if (!class_exists($param)) {
                 throw new ContainerException("param \$param must be exists.");
+            } else {
+                $this->classes[$id] = $param;
             }
         } elseif (is_callable($param)) {
-            // do nothing
+            $this->classes[$id] = $param;
         } elseif (is_array($param)) {
             if (!array_key_exists('class', $param) || !class_exists($param['class'])) {
                 throw new ContainerException("param \$param must has index class and exists.");
+            } else {
+                $this->classes[$id] = $param;
             }
         } else {
             throw new ContainerException("param \$param must be string|callable|array.");
         }
-        $this->classes[$id] = $param;
     }
 
     /**
@@ -175,24 +176,25 @@ class Container implements IContainer
      */
     protected function resolve(ReflectionFunctionAbstract $function, array $params)
     {
-        $arguments = [];
-        $parameters = $function->getParameters();
-        foreach ($parameters as $parameter) {
-            if ($parameterClass = $parameter->getClass()) {
-                $className = $parameterClass->getName();
-                if (true === $this->has($className)) {
-                    $arguments[] = $this->get($className);
+        $parameters = [];
+        foreach ($function->getParameters() ?: [] as $parameter) {
+            if ($class = $parameter->getClass()) {
+                if (true === $this->has($class->getName())) {
+                    $parameters[] = $this->get($class->getName());
                 } else {
-                    $arguments[] = new $className();
+                    $parameters[] = $this->factory($class->getName());
                 }
-            } elseif (array_key_exists($parameter->getName(), $params)) {
-                $arguments[] = $params[$parameter->getName()];
-            } elseif ($parameter->isOptional()) {
-                $arguments[] = $parameter->getDefaultValue();
             } else {
-                $arguments[] = null;
+                $name = $parameter->getName();
+                if (array_key_exists($name, $params)) {
+                    $parameters[] = $params[$name];
+                } elseif ($parameter->isOptional()) {
+                    $parameters[] = $parameter->getDefaultValue();
+                } else {
+                    $parameters[] = null;
+                }
             }
         }
-        return $arguments;
+        return $parameters;
     }
 }
