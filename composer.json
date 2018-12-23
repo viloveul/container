@@ -1,13 +1,13 @@
 {
-    "name": "zafex/viloveul-container",
+    "name": "viloveul/container",
     "description": "Container of Viloveul.",
-    "type": "framework",
+    "type": "component",
     "license": "MIT",
     "authors": [{
         "name": "Fajrul Akbar Zuhdi",
         "email": "fajrulaz@gmail.com"
     }],
-    "keywords": ["framework", "micro", "zafex", "viloveul", "fajrulaz", "container"],
+    "keywords": ["component", "zafex", "viloveul", "fajrulaz", "container"],
     "minimum-stability": "dev",
     "prefer-stable": true,
     "config": {
