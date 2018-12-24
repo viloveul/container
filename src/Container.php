@@ -180,6 +180,8 @@ class Container implements IContainer
     public static function setInstance(IContainer $container)
     {
         static::$instance = $container;
+        static::$instance->instances[IContainer::class] = $container;
+        static::$instance->components[IContainer::class] = get_class($container);
     }
 
     /**
