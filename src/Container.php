@@ -2,6 +2,7 @@
 
 namespace Viloveul\Container;
 
+use Closure;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionFunction;
@@ -54,11 +55,11 @@ class Container implements IContainer
     }
 
     /**
-     * @param  $class
-     * @param  array    $params
+     * @param  string  $class
+     * @param  array   $params
      * @return mixed
      */
-    public function factory($class, array $params = [])
+    public function factory(string $class, array $params = [])
     {
         try {
             $reflection = new ReflectionClass($class);
@@ -82,8 +83,7 @@ class Container implements IContainer
     }
 
     /**
-     * @param  $id
-     * @return mixed
+     * @param $id
      */
     public function get($id)
     {
@@ -153,7 +153,7 @@ class Container implements IContainer
      */
     public function set($id, $param)
     {
-        if (!$this->has($id)) {
+        if (!$this->has($id) && $id !== Closure::class) {
             if (is_string($param)) {
                 if (!class_exists($param)) {
                     throw new ContainerException("param \$param must be exists.");
