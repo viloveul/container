@@ -63,6 +63,10 @@ class Container implements IContainer
     {
         try {
             $reflection = new ReflectionClass($class);
+            if (!$reflection->isInstantiable()) {
+                throw new ContainerException("{$class} is not instantiable.");
+            }
+
             $constructor = $reflection->getConstructor();
 
             if (null === $constructor || $constructor->getNumberOfParameters() === 0) {
