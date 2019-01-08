@@ -159,16 +159,12 @@ class Container implements IContainer
     {
         if (!$this->has($id) && $id !== Closure::class) {
             if (is_string($param)) {
-                if (!class_exists($param)) {
-                    throw new ContainerException("param \$param must be exists.");
-                } else {
-                    $this->components[$id] = $param;
-                }
+                $this->components[$id] = $param;
             } elseif (is_callable($param)) {
                 $this->components[$id] = $param;
             } elseif (is_array($param)) {
-                if (!array_key_exists('class', $param) || !class_exists($param['class'])) {
-                    throw new ContainerException("param \$param must has index class and exists.");
+                if (!array_key_exists('class', $param)) {
+                    throw new ContainerException("param \$param must has index class.");
                 } else {
                     $this->components[$id] = $param;
                 }
