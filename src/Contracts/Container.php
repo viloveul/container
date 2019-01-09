@@ -11,7 +11,7 @@ interface Container extends ContainerInterface
      */
     public function factory(string $class);
 
-    public static function getInstance(): Container;
+    public static function getInstance(): self;
 
     /**
      * @param $callback
@@ -19,7 +19,21 @@ interface Container extends ContainerInterface
     public function invoke(callable $callback);
 
     /**
+     * @param $id
+     * @param $target
+     * @param array     $params
+     */
+    public function map($id, $target, array $params = []);
+
+    /**
+     * @param $id
+     * @param $target
+     * @param array     $params
+     */
+    public function remap($id, $target, array $params = []);
+
+    /**
      * @param self $instance
      */
-    public static function setInstance(Container $instance);
+    public static function setInstance(self $instance);
 }
