@@ -2,10 +2,10 @@
 
 namespace Viloveul\Container;
 
-use Exception;
 use Psr\Container\NotFoundExceptionInterface as INotFoundException;
+use RuntimeException;
 
-class NotFoundException extends Exception implements INotFoundException
+class NotFoundException extends RuntimeException implements INotFoundException
 {
 
 }

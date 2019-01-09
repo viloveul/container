@@ -1,13 +1,15 @@
 {
     "name": "viloveul/container",
-    "description": "Container of Viloveul.",
-    "type": "component",
+    "description": "Container of Viloveul. Just like service locator",
+    "type": "library",
     "license": "MIT",
+    "keywords": ["zafex", "viloveul", "fajrulaz", "container", "component", "library"],
+    "homepage": "http://www.viloveul.com",
+    "readme": "README.MD",
     "authors": [{
         "name": "Fajrul Akbar Zuhdi",
         "email": "fajrulaz@gmail.com"
     }],
-    "keywords": ["component", "zafex", "viloveul", "fajrulaz", "container"],
     "minimum-stability": "dev",
     "prefer-stable": true,
     "config": {

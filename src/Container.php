@@ -35,13 +35,8 @@ class Container implements IContainer
     public function __construct(array $components = [])
     {
         static::setInstance($this);
-
-        if (count($components) > 0) {
-            foreach ($components as $key => $param) {
-                if (!$this->has($key)) {
-                    $this->set($key, $param);
-                }
-            }
+        foreach ($components as $key => $param) {
+            $this->set($key, $param);
         }
     }
 
@@ -92,16 +87,17 @@ class Container implements IContainer
     public function get($id)
     {
         if (!array_key_exists($id, $this->instances)) {
-            if ($this->has($id)) {
-                if (is_callable($this->components[$id])) {
-                    $this->instances[$id] = $this->invoke($this->components[$id]);
-                } elseif (is_array($this->components[$id])) {
-                    $params = $this->components[$id];
-                    $class = $params['class'];
-                    unset($params['class']);
-                    $this->instances[$id] = $this->factory($class, $params);
+            if ($this->has($id) === true) {
+                if (is_callable($this->components[$id]['target'])) {
+                    $this->instances[$id] = $this->invoke(
+                        $this->components[$id]['target'],
+                        $this->components[$id]['params']
+                    );
                 } else {
-                    $this->instances[$id] = $this->factory($this->components[$id]);
+                    $this->instances[$id] = $this->factory(
+                        $this->components[$id]['target'],
+                        $this->components[$id]['params'],
+                    );
                 }
             } else {
                 throw new NotFoundException("{$id} does not found.");
@@ -127,9 +123,8 @@ class Container implements IContainer
     }
 
     /**
-     * @param  $function
-     * @param  array       $params
-     * @return mixed
+     * @param $function
+     * @param array       $params
      */
     public function invoke(callable $function, array $params = [])
     {
@@ -153,24 +148,54 @@ class Container implements IContainer
 
     /**
      * @param $id
-     * @param $param
+     * @param $target
+     * @param array     $params
      */
-    public function set($id, $param)
+    public function map($id, $target, array $params = [])
     {
-        if (!$this->has($id) && $id !== Closure::class) {
-            if (is_string($param)) {
-                $this->components[$id] = $param;
-            } elseif (is_callable($param)) {
-                $this->components[$id] = $param;
-            } elseif (is_array($param)) {
-                if (!array_key_exists('class', $param)) {
-                    throw new ContainerException("param \$param must has index class.");
-                } else {
-                    $this->components[$id] = $param;
-                }
+        if ($this->has($id) === true) {
+            throw new ContainerException("ID {$id} already registered.");
+        }
+        if ($id === Closure::class) {
+            throw new ContainerException("{$id} names cannot be registered.");
+        }
+        $this->components[$id] = compact('target', 'params');
+    }
+
+    /**
+     * @param $id
+     * @param $target
+     * @param array     $params
+     */
+    public function remap($id, $target, array $params = [])
+    {
+        if ($this->has($id) === false) {
+            throw new ContainerException("ID {$id} hasn't been registered yet.");
+        }
+        if ($id === Closure::class) {
+            throw new ContainerException("{$id} names cannot be registered.");
+        }
+        $this->components[$id] = compact('target', 'params');
+    }
+
+    /**
+     * @param $id
+     * @param $argument
+     */
+    public function set($id, $argument)
+    {
+        if (is_string($argument) || is_callable($argument)) {
+            $this->map($id, $argument, []);
+        } elseif (is_array($argument)) {
+            $params = $argument;
+            if (!array_key_exists('class', $params)) {
+                throw new ContainerException("The second 'argument' must be an array with index 'class'.");
             } else {
-                throw new ContainerException("param \$param must be string|callable|array.");
+                unset($params['class']);
+                $this->map($id, $argument['class'], $params);
             }
+        } else {
+            throw new ContainerException("The second 'argument' must be an array, string, or callable.");
         }
     }
 
@@ -181,7 +206,10 @@ class Container implements IContainer
     {
         static::$instance = $container;
         static::$instance->instances[IContainer::class] = $container;
-        static::$instance->components[IContainer::class] = get_class($container);
+        static::$instance->components[IContainer::class] = [
+            'target' => get_class($container),
+            'params' => [],
+        ];
     }
 
     /**
