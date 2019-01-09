@@ -96,7 +96,7 @@ class Container implements IContainer
                 } else {
                     $this->instances[$id] = $this->factory(
                         $this->components[$id]['target'],
-                        $this->components[$id]['params'],
+                        $this->components[$id]['params']
                     );
                 }
             } else {
