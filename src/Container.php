@@ -20,22 +20,22 @@ class Container implements IContainer
     protected $components = [];
 
     /**
+     * @var array
+     */
+    protected $definitions = [];
+
+    /**
      * @var mixed
      */
     protected static $instance = null;
 
     /**
-     * @var array
+     * @param array $definitions
      */
-    protected $instances = [];
-
-    /**
-     * @param array $components
-     */
-    public function __construct(array $components = [])
+    public function __construct(array $definitions = [])
     {
         static::setInstance($this);
-        foreach ($components as $key => $param) {
+        foreach ($definitions as $key => $param) {
             $this->set($key, $param);
         }
     }
@@ -86,24 +86,24 @@ class Container implements IContainer
      */
     public function get($id)
     {
-        if (!array_key_exists($id, $this->instances)) {
+        if (!array_key_exists($id, $this->components)) {
             if ($this->has($id) === true) {
-                if (is_callable($this->components[$id]['target'])) {
-                    $this->instances[$id] = $this->invoke(
-                        $this->components[$id]['target'],
-                        $this->components[$id]['params']
+                if (is_callable($this->definitions[$id]['target'])) {
+                    $this->components[$id] = $this->invoke(
+                        $this->definitions[$id]['target'],
+                        $this->definitions[$id]['params']
                     );
                 } else {
-                    $this->instances[$id] = $this->factory(
-                        $this->components[$id]['target'],
-                        $this->components[$id]['params']
+                    $this->components[$id] = $this->factory(
+                        $this->definitions[$id]['target'],
+                        $this->definitions[$id]['params']
                     );
                 }
             } else {
                 throw new NotFoundException("{$id} does not found.");
             }
         }
-        return $this->instances[$id];
+        return $this->components[$id];
     }
 
     public static function getInstance(): IContainer
@@ -119,7 +119,7 @@ class Container implements IContainer
      */
     public function has($id)
     {
-        return array_key_exists($id, $this->components);
+        return array_key_exists($id, $this->definitions);
     }
 
     /**
@@ -159,7 +159,19 @@ class Container implements IContainer
         if ($id === Closure::class) {
             throw new ContainerException("{$id} names cannot be registered.");
         }
-        $this->components[$id] = compact('target', 'params');
+        $this->definitions[$id] = compact('target', 'params');
+    }
+
+    /**
+     * @param  $id
+     * @return mixed
+     */
+    public function raw($id)
+    {
+        if ($this->has($id)) {
+            return $this->definitions[$id];
+        }
+        throw new NotFoundException("{$id} does not found.");
     }
 
     /**
@@ -175,7 +187,10 @@ class Container implements IContainer
         if ($id === Closure::class) {
             throw new ContainerException("{$id} names cannot be registered.");
         }
-        $this->components[$id] = compact('target', 'params');
+        if (array_key_exists($id, $this->components)) {
+            throw new ContainerException("{$id} names has been resolved.");
+        }
+        $this->definitions[$id] = compact('target', 'params');
     }
 
     /**
@@ -205,8 +220,8 @@ class Container implements IContainer
     public static function setInstance(IContainer $container)
     {
         static::$instance = $container;
-        static::$instance->instances[IContainer::class] = $container;
-        static::$instance->components[IContainer::class] = [
+        static::$instance->components[IContainer::class] = $container;
+        static::$instance->definitions[IContainer::class] = [
             'target' => get_class($container),
             'params' => [],
         ];
