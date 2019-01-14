@@ -25,6 +25,8 @@ interface Container extends ContainerInterface
      */
     public function map($id, $target, array $params = []);
 
+    public function raw($id);
+
     /**
      * @param $id
      * @param $target
