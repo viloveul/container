@@ -239,8 +239,10 @@ class Container implements IContainer
             if ($class = $parameter->getClass()) {
                 if (true === $this->has($class->getName())) {
                     $parameters[] = $this->get($class->getName());
-                } else {
+                } elseif ($class->isInstantiable() === true) {
                     $parameters[] = $this->factory($class->getName());
+                } else {
+                    $parameters[] = $parameter->isOptional() ? $parameter->getDefaultValue() : null;
                 }
             } else {
                 $name = $parameter->getName();
