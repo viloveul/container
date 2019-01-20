@@ -12,7 +12,7 @@ composer require viloveul/container
 ```php
 require __DIR__ . '/vendor/autoload.php';
 
-$container = new Viloveul\Container\Container();
+$container = Viloveul\Container\ContainerFactory::instance();
 
 class YourClassA
 {
@@ -29,7 +29,7 @@ class YourClassB
 	}
 }
 
-$result = $container->factory(YourClassB::class);
+$result = $container->make(YourClassB::class);
 
 var_dump($result);
 ```
@@ -62,7 +62,7 @@ class YourClassB
 
 $container->set(EntityInterface::class, YourClassA::class);
 
-$result = $container->factory(YourClassB::class);
+$result = $container->make(YourClassB::class);
 
 var_dump($result);
 

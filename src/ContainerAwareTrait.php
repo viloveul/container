@@ -2,10 +2,10 @@
 
 namespace Viloveul\Container;
 
-use Viloveul\Container\Container as ContainerClass;
+use Viloveul\Container\ContainerFactory;
 use Viloveul\Container\Contracts\Container as IContainer;
 
-trait ContainerInjectorTrait
+trait ContainerAwareTrait
 {
     /**
      * @var mixed
@@ -20,7 +20,7 @@ trait ContainerInjectorTrait
         if ($this->container instanceof IContainer) {
             return $this->container;
         } else {
-            $this->container = ContainerClass::getInstance();
+            $this->container = ContainerFactory::instance();
             return $this->container;
         }
     }

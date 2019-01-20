@@ -7,16 +7,23 @@ use Psr\Container\ContainerInterface as ContainerInterface;
 interface Container extends ContainerInterface
 {
     /**
-     * @param string $class
+     * @param $id
      */
-    public function factory(string $class);
+    public function __get($id);
 
     public static function getInstance(): self;
 
     /**
      * @param $callback
+     * @param array       $params
      */
-    public function invoke(callable $callback);
+    public function invoke(callable $callback, array $params = []);
+
+    /**
+     * @param string $class
+     * @param array  $params
+     */
+    public function make(string $class, array $params = []);
 
     /**
      * @param $id
@@ -25,6 +32,9 @@ interface Container extends ContainerInterface
      */
     public function map($id, $target, array $params = []);
 
+    /**
+     * @param $id
+     */
     public function raw($id);
 
     /**
