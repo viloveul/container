@@ -10,7 +10,7 @@ use ReflectionFunctionAbstract;
 use ReflectionMethod;
 use Viloveul\Container\ContainerException;
 use Viloveul\Container\Contracts\Container as IContainer;
-use Viloveul\Container\Contracts\Injector as IContainerInjector;
+use Viloveul\Container\Contracts\ContainerAware as IContainerAware;
 
 class Container implements IContainer
 {
@@ -32,12 +32,9 @@ class Container implements IContainer
     /**
      * @param array $definitions
      */
-    public function __construct(array $definitions = [])
+    public function __construct()
     {
         static::setInstance($this);
-        foreach ($definitions as $key => $param) {
-            $this->set($key, $param);
-        }
     }
 
     /**
@@ -47,38 +44,6 @@ class Container implements IContainer
     public function __get($id)
     {
         return $this->get($id);
-    }
-
-    /**
-     * @param  string  $class
-     * @param  array   $params
-     * @return mixed
-     */
-    public function factory(string $class, array $params = [])
-    {
-        try {
-            $reflection = new ReflectionClass($class);
-            if (!$reflection->isInstantiable()) {
-                throw new ContainerException("{$class} is not instantiable.");
-            }
-
-            $constructor = $reflection->getConstructor();
-
-            if (null === $constructor || $constructor->getNumberOfParameters() === 0) {
-                $object = $reflection->newInstance();
-            } else {
-                $object = $reflection->newInstanceArgs($this->resolve($constructor, $params));
-            }
-
-            if ($object instanceof IContainerInjector) {
-                $object->setContainer($this);
-            }
-
-            return $object;
-
-        } catch (ReflectionException $e) {
-            throw new ContainerException($e->getMessage());
-        }
     }
 
     /**
@@ -94,7 +59,7 @@ class Container implements IContainer
                         $this->definitions[$id]['params']
                     );
                 } else {
-                    $this->components[$id] = $this->factory(
+                    $this->components[$id] = $this->make(
                         $this->definitions[$id]['target'],
                         $this->definitions[$id]['params']
                     );
@@ -141,6 +106,38 @@ class Container implements IContainer
             }
             $invokerArguments[] = $this->resolve($reflection, $params);
             return call_user_func_array([$reflection, 'invokeArgs'], $invokerArguments);
+        } catch (ReflectionException $e) {
+            throw new ContainerException($e->getMessage());
+        }
+    }
+
+    /**
+     * @param  string  $class
+     * @param  array   $params
+     * @return mixed
+     */
+    public function make(string $class, array $params = [])
+    {
+        try {
+            $reflection = new ReflectionClass($class);
+            if (!$reflection->isInstantiable()) {
+                throw new ContainerException("{$class} is not instantiable.");
+            }
+
+            $constructor = $reflection->getConstructor();
+
+            if (null === $constructor || $constructor->getNumberOfParameters() === 0) {
+                $object = $reflection->newInstance();
+            } else {
+                $object = $reflection->newInstanceArgs($this->resolve($constructor, $params));
+            }
+
+            if ($object instanceof IContainerAware) {
+                $object->setContainer($this);
+            }
+
+            return $object;
+
         } catch (ReflectionException $e) {
             throw new ContainerException($e->getMessage());
         }
@@ -220,11 +217,6 @@ class Container implements IContainer
     public static function setInstance(IContainer $container)
     {
         static::$instance = $container;
-        static::$instance->components[IContainer::class] = $container;
-        static::$instance->definitions[IContainer::class] = [
-            'target' => get_class($container),
-            'params' => [],
-        ];
     }
 
     /**
@@ -236,18 +228,28 @@ class Container implements IContainer
     {
         $parameters = [];
         foreach ($function->getParameters() ?: [] as $parameter) {
+            $name = $parameter->getName();
             if ($class = $parameter->getClass()) {
-                if (true === $this->has($class->getName())) {
+                if ($this->has($class->getName()) === true) {
                     $parameters[] = $this->get($class->getName());
                 } elseif ($class->isInstantiable() === true) {
-                    $parameters[] = $this->factory($class->getName());
+                    $parameters[] = $this->make($class->getName());
+                } elseif ($parameter->isOptional() !== true) {
+                    if (array_key_exists($name, $params)) {
+                        $parameters[] = $params[$name];
+                    } elseif ($this->has($name) === true) {
+                        $parameters[] = $this->get($name);
+                    } else {
+                        $parameters[] = null;
+                    }
                 } else {
-                    $parameters[] = $parameter->isOptional() ? $parameter->getDefaultValue() : null;
+                    $parameters[] = $parameter->getDefaultValue();
                 }
             } else {
-                $name = $parameter->getName();
                 if (array_key_exists($name, $params)) {
                     $parameters[] = $params[$name];
+                } elseif ($parameter->isOptional() !== true && $this->has($name) === true) {
+                    $parameters[] = $this->get($name);
                 } elseif ($parameter->isOptional()) {
                     $parameters[] = $parameter->getDefaultValue();
                 } else {

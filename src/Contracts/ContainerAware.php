@@ -4,7 +4,7 @@ namespace Viloveul\Container\Contracts;
 
 use Viloveul\Container\Contracts\Container;
 
-interface Injector
+interface ContainerAware
 {
     public function getContainer(): Container;
 
