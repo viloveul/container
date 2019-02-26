@@ -1,5 +1,7 @@
 <?php 
 
+use ViloveulContainerExample;
+
 class InstanceTest extends \Codeception\Test\Unit
 {
     /**
@@ -15,8 +17,15 @@ class InstanceTest extends \Codeception\Test\Unit
     {
     }
 
-    // tests
-    public function testNewInstance()
+    public function testNormalInstance()
+    {
+        $this->assertInstanceOf(
+            \Viloveul\Container\Contracts\Container::class,
+            new \Viloveul\Container\Container()
+        );
+    }
+
+    public function testWithFactory()
     {
         $this->assertInstanceOf(
             \Viloveul\Container\Contracts\Container::class,
@@ -24,20 +33,20 @@ class InstanceTest extends \Codeception\Test\Unit
         );
     }
 
-    public function testResolveWithStringClass()
+    public function testMakeFromString()
     {
         $container = \Viloveul\Container\ContainerFactory::instance();
-        $container->set('dor', \stdClass::class);
-        $this->assertInstanceOf(\stdClass::class, $container->get('dor'));
+        $container->set('foo', ViloveulContainerExample\Foo::class);
+        $this->assertInstanceOf(ViloveulContainerExample\Foo::class, $container->get('foo'));
     }
 
-    public function testResolveWithClosure()
+    public function testMakeFromClosure()
     {
         $container = \Viloveul\Container\ContainerFactory::instance();
-        $container->set('hello', function() {
-            return new \stdClass;
+        $container->set('fooClosure', function() {
+            return new ViloveulContainerExample\Foo();
         });
-        $this->assertInstanceOf(\stdClass::class, $container->get('hello'));
+        $this->assertInstanceOf(ViloveulContainerExample\Foo::class, $container->get('fooClosure'));
     }
 
     public function testInvokeClosure()
@@ -48,5 +57,15 @@ class InstanceTest extends \Codeception\Test\Unit
             return $abc;
         };
         $this->assertEquals($key, $container->invoke($invoker, ['abc' => $key]));
+    }
+
+    public function testInjectContainerAware()
+    {
+        $container = \Viloveul\Container\ContainerFactory::instance();
+        $mine = $container->make(ViloveulContainerExample\Injector::class);
+        $this->assertInstanceOf(
+            \Viloveul\Container\Contracts\Container::class,
+            $mine->getContainer()
+        );
     }
 }
