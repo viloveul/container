@@ -1,8 +1,8 @@
 <?php
 
-namespace ViloveulContainerExample;
+namespace ViloveulContainerSample;
 
-use ViloveulContainerExample\FooInterface;
+use ViloveulContainerSample\FooInterface;
 
 class Foo implements FooInterface
 {

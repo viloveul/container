@@ -1,9 +1,9 @@
 <?php
 
-namespace ViloveulContainerExample;
+namespace ViloveulContainerSample;
 
-use ViloveulContainerExample\BarInterface;
-use ViloveulContainerExample\Foo;
+use ViloveulContainerSample\BarInterface;
+use ViloveulContainerSample\Foo;
 
 class Bar implements BarInterface
 {

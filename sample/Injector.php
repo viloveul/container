@@ -1,6 +1,6 @@
 <?php
 
-namespace ViloveulContainerExample;
+namespace ViloveulContainerSample;
 
 use Viloveul\Container\ContainerAwareTrait;
 use Viloveul\Container\Contracts\ContainerAware;

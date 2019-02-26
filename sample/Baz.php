@@ -1,9 +1,9 @@
 <?php
 
-namespace ViloveulContainerExample;
+namespace ViloveulContainerSample;
 
-use ViloveulContainerExample\BazInterface;
-use ViloveulContainerExample\FooInterface;
+use ViloveulContainerSample\BazInterface;
+use ViloveulContainerSample\FooInterface;
 
 class Baz implements BazInterface
 {
