@@ -1,6 +1,6 @@
 <?php 
 
-use ViloveulContainerExample;
+use ViloveulContainerSample;
 
 class ResolveTest extends \Codeception\Test\Unit
 {
@@ -8,9 +8,12 @@ class ResolveTest extends \Codeception\Test\Unit
      * @var \UnitTester
      */
     protected $tester;
+
+    protected $myContainer;
     
     protected function _before()
     {
+        $this->myContainer = \Viloveul\Container\ContainerFactory::instance();
     }
 
     protected function _after()
@@ -19,27 +22,25 @@ class ResolveTest extends \Codeception\Test\Unit
 
     public function testWithClass()
     {
-        $container = \Viloveul\Container\ContainerFactory::instance();
-        $container->set(
-            ViloveulContainerExample\Foo::class,
-            ViloveulContainerExample\Foo::class
+        $this->myContainer->set(
+            ViloveulContainerSample\Foo::class,
+            ViloveulContainerSample\Foo::class
         );
         $this->assertInstanceOf(
-            ViloveulContainerExample\Foo::class,
-            $container->make(ViloveulContainerExample\Bar::class)->foo
+            ViloveulContainerSample\Foo::class,
+            $this->myContainer->make(ViloveulContainerSample\Bar::class)->foo
         );
     }
 
     public function testWithInterface()
     {
-        $container = \Viloveul\Container\ContainerFactory::instance();
-        $container->set(
-            ViloveulContainerExample\FooInterface::class,
-            ViloveulContainerExample\Foo::class
+        $this->myContainer->set(
+            ViloveulContainerSample\FooInterface::class,
+            ViloveulContainerSample\Foo::class
         );
         $this->assertInstanceOf(
-            ViloveulContainerExample\FooInterface::class,
-            $container->make(ViloveulContainerExample\Baz::class)->foo
+            ViloveulContainerSample\FooInterface::class,
+            $this->myContainer->make(ViloveulContainerSample\Baz::class)->foo
         );
     }
 }

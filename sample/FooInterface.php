@@ -1,6 +1,6 @@
 <?php
 
-namespace ViloveulContainerExample;
+namespace ViloveulContainerSample;
 
 interface FooInterface
 {

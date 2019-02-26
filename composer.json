@@ -20,7 +20,7 @@
         "psr/container": "^1.0"
     },
     "require-dev": {
-        "codeception/base": "^2.5",
+        "codeception/codeception": "^2.5",
         "viloveul/support": "v1.*|v1.x-dev"
     },
     "autoload": {
@@ -30,7 +30,7 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "ViloveulContainerExample\\": "example/"
+            "ViloveulContainerSample\\": "sample/"
         }
     }
 }
