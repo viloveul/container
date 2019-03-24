@@ -25,19 +25,6 @@ class Container implements IContainer
     protected $definitions = [];
 
     /**
-     * @var mixed
-     */
-    protected static $instance = null;
-
-    /**
-     * @param array $definitions
-     */
-    public function __construct()
-    {
-        static::setInstance($this);
-    }
-
-    /**
      * @param  $id
      * @return mixed
      */
@@ -69,14 +56,6 @@ class Container implements IContainer
             }
         }
         return $this->components[$id];
-    }
-
-    public static function getInstance(): IContainer
-    {
-        if (!(static::$instance instanceof IContainer)) {
-            static::$instance = new static;
-        }
-        return static::$instance;
     }
 
     /**
@@ -209,14 +188,6 @@ class Container implements IContainer
         } else {
             throw new ContainerException("The second 'argument' must be an array, string, or callable.");
         }
-    }
-
-    /**
-     * @param IContainer $container
-     */
-    public static function setInstance(IContainer $container)
-    {
-        static::$instance = $container;
     }
 
     /**
