@@ -11,8 +11,6 @@ interface Container extends ContainerInterface
      */
     public function __get($id);
 
-    public static function getInstance(): self;
-
     /**
      * @param $callback
      * @param array       $params
@@ -43,9 +41,4 @@ interface Container extends ContainerInterface
      * @param array     $params
      */
     public function remap($id, $target, array $params = []);
-
-    /**
-     * @param self $instance
-     */
-    public static function setInstance(self $instance);
 }
