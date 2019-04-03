@@ -4,9 +4,8 @@ namespace Viloveul\Container;
 
 use Viloveul\Container\Container;
 use Viloveul\Container\Contracts\Container as IContainer;
-use Viloveul\Container\Contracts\ContainerFactory as IContainerFactory;
 
-class ContainerFactory implements IContainerFactory
+class ContainerFactory
 {
     /**
      * @var mixed
