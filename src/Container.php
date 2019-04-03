@@ -4,10 +4,10 @@ namespace Viloveul\Container;
 
 use Closure;
 use ReflectionClass;
-use ReflectionException;
-use ReflectionFunction;
-use ReflectionFunctionAbstract;
 use ReflectionMethod;
+use ReflectionFunction;
+use ReflectionException;
+use ReflectionFunctionAbstract;
 use Viloveul\Container\ContainerException;
 use Viloveul\Container\Contracts\Container as IContainer;
 use Viloveul\Container\Contracts\ContainerAware as IContainerAware;

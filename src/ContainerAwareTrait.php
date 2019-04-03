@@ -2,6 +2,7 @@
 
 namespace Viloveul\Container;
 
+use Viloveul\Container\ContainerFactory;
 use Viloveul\Container\Contracts\Container as IContainer;
 
 trait ContainerAwareTrait
@@ -16,6 +17,9 @@ trait ContainerAwareTrait
      */
     public function getContainer(): IContainer
     {
+        if (!($this->container instanceof IContainer)) {
+            $this->setContainer(ContainerFactory::instance());
+        }
         return $this->container;
     }
 
