@@ -164,7 +164,8 @@ class Container implements IContainer
             throw new ContainerException("{$id} names cannot be registered.");
         }
         if (array_key_exists($id, $this->components)) {
-            throw new ContainerException("{$id} names has been resolved.");
+            $this->components[$id] = null;
+            unset($this->components[$id]);
         }
         $this->definitions[$id] = compact('target', 'params');
     }
