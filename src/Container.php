@@ -17,6 +17,11 @@ class Container implements IContainer
     /**
      * @var array
      */
+    protected $aliases = [];
+
+    /**
+     * @var array
+     */
     protected $components = [];
 
     /**
@@ -34,22 +39,56 @@ class Container implements IContainer
     }
 
     /**
+     * @param string $id
+     * @param string $target
+     */
+    public function alias(string $id, string $target): void
+    {
+        if (array_key_exists($id, $this->definitions)) {
+            throw new ContainerException("ID {$id} already registered as definitions.");
+        }
+        if (array_key_exists($id, $this->aliases)) {
+            throw new ContainerException("ID {$id} already registered as aliases for " . $this->getRealIdentifier($id));
+        }
+        $this->aliases[$id] = $target;
+    }
+
+    /**
+     * @param string $id
+     * @param bool   $recursive
+     */
+    public function forget(string $id, bool $recursive = false): void
+    {
+        if (array_key_exists($id, $this->definitions)) {
+            $this->definitions[$id] = null;
+            unset($this->definitions[$id]);
+            if (array_key_exists($id, $this->components)) {
+                $this->components[$id] = null;
+                unset($this->components[$id]);
+            }
+        }
+        if (array_key_exists($id, $this->aliases)) {
+            if ($recursive === true) {
+                $this->forget($this->aliases[$id], $recursive);
+            }
+            $this->aliases[$id] = null;
+            unset($this->aliases[$id]);
+        }
+    }
+
+    /**
      * @param $id
      */
-    public function get($id)
+    public function get($name)
     {
+        $id = $this->getRealIdentifier($name);
         if (!array_key_exists($id, $this->components)) {
-            if ($this->has($id) === true) {
-                if (is_callable($this->definitions[$id]['target'])) {
-                    $this->components[$id] = $this->invoke(
-                        $this->definitions[$id]['target'],
-                        $this->definitions[$id]['params']
-                    );
+            if (array_key_exists($id, $this->definitions) === true) {
+                $definition = $this->definitions[$id];
+                if (is_callable($definition['target'])) {
+                    $this->components[$id] = $this->invoke($definition['target'], $definition['params']);
                 } else {
-                    $this->components[$id] = $this->make(
-                        $this->definitions[$id]['target'],
-                        $this->definitions[$id]['params']
-                    );
+                    $this->components[$id] = $this->make($definition['target'], $definition['params']);
                 }
             } else {
                 throw new NotFoundException("{$id} does not found.");
@@ -59,11 +98,23 @@ class Container implements IContainer
     }
 
     /**
+     * @param  string  $name
+     * @return mixed
+     */
+    public function getRealIdentifier(string $name): string
+    {
+        while (array_key_exists($name, $this->aliases) === true) {
+            $name = $this->aliases[$name];
+        }
+        return $name;
+    }
+
+    /**
      * @param $id
      */
     public function has($id)
     {
-        return array_key_exists($id, $this->definitions);
+        return array_key_exists($this->getRealIdentifier($id), $this->definitions);
     }
 
     /**
@@ -127,9 +178,9 @@ class Container implements IContainer
      * @param $target
      * @param array     $params
      */
-    public function map($id, $target, array $params = [])
+    public function map($id, $target, array $params = []): void
     {
-        if ($this->has($id) === true) {
+        if (array_key_exists($id, $this->definitions) === true) {
             throw new ContainerException("ID {$id} already registered.");
         }
         if ($id === Closure::class) {
@@ -155,17 +206,16 @@ class Container implements IContainer
      * @param $target
      * @param array     $params
      */
-    public function remap($id, $target, array $params = [])
+    public function remap($id, $target, array $params = []): void
     {
-        if ($this->has($id) === false) {
+        if (array_key_exists($id, $this->definitions) === false) {
             throw new ContainerException("ID {$id} hasn't been registered yet.");
         }
         if ($id === Closure::class) {
             throw new ContainerException("{$id} names cannot be registered.");
         }
         if (array_key_exists($id, $this->components)) {
-            $this->components[$id] = null;
-            unset($this->components[$id]);
+            $this->forget($id, false);
         }
         $this->definitions[$id] = compact('target', 'params');
     }
