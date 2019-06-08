@@ -1,6 +1,4 @@
-<?php 
-
-use ViloveulContainerSample;
+<?php
 
 class ResolveTest extends \Codeception\Test\Unit
 {
