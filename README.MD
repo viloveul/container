@@ -1,6 +1,6 @@
 <p align="center">
-<a href="https://travis-ci.org/viloveul/container">
-<img src="https://travis-ci.org/viloveul/container.svg" alt="Build Status">
+<a href="https://travis-ci.com/viloveul/container">
+<img src="https://travis-ci.com/viloveul/container.svg" alt="Build Status">
 </a>
 <a href="https://packagist.org/packages/viloveul/container">
 <img src="https://poser.pugx.org/viloveul/container/d/total.svg" alt="Total Downloads">
